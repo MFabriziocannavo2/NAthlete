@@ -1,0 +1,105 @@
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import Navbar from "@/components/Navbar";
+import AthleteCard from "@/components/AthleteCard";
+import { Input } from "@/components/ui/Input";
+import type { Athlete } from "@/lib/types";
+
+export default function AthletesPage() {
+  const [athletes, setAthletes] = useState<Athlete[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [sport, setSport] = useState("");
+
+  useEffect(() => {
+    const fetchAthletes = async () => {
+      const { data, error } = await supabase
+        .from("athletes")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) console.error("Failed to fetch athletes:", error.message);
+
+      setAthletes(data ?? []);
+      setLoading(false);
+    };
+
+    fetchAthletes();
+  }, []);
+
+  const sports = useMemo(() => {
+    const unique = new Set(
+      athletes.map((a) => a.sport).filter((s): s is string => !!s)
+    );
+    return Array.from(unique).sort();
+  }, [athletes]);
+
+  const filtered = useMemo(() => {
+    return athletes.filter((a) => {
+      const matchesSearch =
+        !search ||
+        a.name?.toLowerCase().includes(search.toLowerCase()) ||
+        a.school?.toLowerCase().includes(search.toLowerCase()) ||
+        a.position?.toLowerCase().includes(search.toLowerCase());
+
+      const matchesSport = !sport || a.sport === sport;
+
+      return matchesSearch && matchesSport;
+    });
+  }, [athletes, search, sport]);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white">
+      <Navbar />
+
+      <div className="max-w-6xl mx-auto px-6 py-10">
+        <div className="mb-8">
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2">
+            Discover Athletes
+          </h1>
+          <p className="text-gray-400">
+            Browse athlete profiles and find your next recruit.
+          </p>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-4 mb-8">
+          <Input
+            placeholder="Search by name, position, or school..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="sm:flex-1"
+          />
+
+          <select
+            value={sport}
+            onChange={(e) => setSport(e.target.value)}
+            className="bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition sm:w-56 [color-scheme:dark]"
+          >
+            <option value="">All sports</option>
+            {sports.map((s) => (
+              <option key={s} value={s}>
+                {s}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {loading ? (
+          <p className="text-gray-400">Loading athletes...</p>
+        ) : filtered.length === 0 ? (
+          <p className="text-gray-400">
+            No athletes found matching those criteria.
+          </p>
+        ) : (
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+            {filtered.map((athlete) => (
+              <AthleteCard key={athlete.id} athlete={athlete} />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

@@ -1,33 +1,48 @@
-export default function HighlightFeedPreview() {
-    return (
-      <section className="py-20 px-6">
-        <div className="max-w-6xl mx-auto text-center">
-  
-          <h2 className="text-3xl font-bold mb-6">
-            Athlete Highlights
-          </h2>
-  
-          <p className="text-gray-600 mb-10">
-            Watch the latest highlights from athletes around the world.
-          </p>
-  
-          <div className="grid md:grid-cols-3 gap-6">
-  
-            <div className="bg-gray-200 h-48 rounded-lg flex items-center justify-center">
-              Highlight Video
-            </div>
-  
-            <div className="bg-gray-200 h-48 rounded-lg flex items-center justify-center">
-              Highlight Video
-            </div>
-  
-            <div className="bg-gray-200 h-48 rounded-lg flex items-center justify-center">
-              Highlight Video
-            </div>
-  
+import Link from "next/link";
+import { supabase } from "@/lib/supabase";
+import AthleteCard from "@/components/AthleteCard";
+import type { Athlete } from "@/lib/types";
+
+export default async function HighlightFeedPreview() {
+  const { data: athletes } = await supabase
+    .from("athletes")
+    .select("*")
+    .not("highlight_video", "is", null)
+    .order("created_at", { ascending: false })
+    .limit(3);
+
+  const highlights = (athletes ?? []) as Athlete[];
+
+  return (
+    <section id="highlights" className="py-20 px-6">
+      <div className="max-w-6xl mx-auto text-center">
+        <h2 className="text-3xl font-bold mb-4 text-white">
+          Athlete Highlights
+        </h2>
+
+        <p className="text-gray-400 mb-10">
+          Watch the latest highlights from athletes around the world.
+        </p>
+
+        {highlights.length === 0 ? (
+          <div className="bg-white/5 backdrop-blur-lg rounded-2xl border border-white/10 p-12 text-gray-400">
+            No highlights have been posted yet.{" "}
+            <Link
+              href="/create-profile"
+              className="text-orange-400 hover:text-orange-300 font-medium underline"
+            >
+              Be the first to share yours
+            </Link>
+            .
           </div>
-  
-        </div>
-      </section>
-    );
-  }
+        ) : (
+          <div className="grid md:grid-cols-3 gap-6">
+            {highlights.map((athlete) => (
+              <AthleteCard key={athlete.id} athlete={athlete} />
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
