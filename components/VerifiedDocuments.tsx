@@ -26,14 +26,16 @@ export default function VerifiedDocuments({
 }) {
   const [documents, setDocuments] = useState<VerifiedDocument[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [docType, setDocType] = useState<string>(DOCUMENT_TYPES[0]);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    listDocuments(athleteId).then((data) => {
+    listDocuments(athleteId).then(({ data, error }) => {
       setDocuments(data);
+      setLoadError(error);
       setLoading(false);
     });
   }, [athleteId]);
@@ -76,7 +78,11 @@ export default function VerifiedDocuments({
       title="Verified Documents"
       icon={<DocumentTextIcon className="w-5 h-5 text-orange-400" />}
     >
-      {documents.length === 0 ? (
+      {loadError ? (
+        <p className="text-red-400 text-sm mb-4">
+          Couldn&apos;t load documents. Please refresh the page to try again.
+        </p>
+      ) : documents.length === 0 ? (
         <p className="text-gray-400 text-sm mb-4">No documents uploaded yet.</p>
       ) : (
         <div className="flex flex-col gap-3 mb-4">

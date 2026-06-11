@@ -16,7 +16,8 @@ import Button from "@/components/ui/Button"
 import { Input, Select, Textarea } from "@/components/ui/Input"
 import AchievementsEditor from "@/components/AchievementsEditor"
 import AvatarUpload from "@/components/AvatarUpload"
-import { validateUsername } from "@/lib/profile"
+import { parseLines, validateUsername } from "@/lib/profile"
+import { isHttpUrl } from "@/lib/url"
 import { RECRUITING_STATUSES, TEAM_TYPES, type AchievementItem } from "@/lib/types"
 
 export interface AthleteFormValues {
@@ -140,6 +141,23 @@ export default function AthleteForm({
 
     if (usernameError) {
       setError(usernameError)
+      return
+    }
+
+    const linkFields: { label: string; value: string }[] = [
+      { label: "Highlight video", value: form.highlight_video },
+      { label: "Instagram URL", value: form.instagram_url },
+      { label: "X / Twitter URL", value: form.twitter_url },
+      { label: "LinkedIn URL", value: form.linkedin_url },
+      ...parseLines(form.media_gallery).map((value) => ({ label: "Media gallery", value })),
+    ]
+
+    const invalidLink = linkFields.find(
+      (field) => field.value.trim() && !isHttpUrl(field.value.trim())
+    )
+
+    if (invalidLink) {
+      setError(`${invalidLink.label} must be a valid http:// or https:// URL.`)
       return
     }
 

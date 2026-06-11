@@ -10,6 +10,7 @@ import type { Athlete } from "@/lib/types";
 export default function AthletesPage() {
   const [athletes, setAthletes] = useState<Athlete[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [search, setSearch] = useState("");
   const [sport, setSport] = useState("");
 
@@ -20,7 +21,10 @@ export default function AthletesPage() {
         .select("*")
         .order("created_at", { ascending: false });
 
-      if (error) console.error("Failed to fetch athletes:", error.message);
+      if (error) {
+        console.error("Failed to fetch athletes:", error.message);
+        setLoadError(true);
+      }
 
       setAthletes(data ?? []);
       setLoading(false);
@@ -88,9 +92,15 @@ export default function AthletesPage() {
 
         {loading ? (
           <p className="text-gray-400">Loading athletes...</p>
+        ) : loadError ? (
+          <p className="text-red-400">
+            Couldn&apos;t load athletes. Please refresh the page to try again.
+          </p>
         ) : filtered.length === 0 ? (
           <p className="text-gray-400">
-            No athletes found matching those criteria.
+            {athletes.length === 0
+              ? "No athletes have joined yet. Be the first to create a profile!"
+              : "No athletes found matching those criteria."}
           </p>
         ) : (
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6">

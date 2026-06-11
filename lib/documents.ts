@@ -13,7 +13,9 @@ const ALLOWED_TYPES = [
 ]
 
 /** Lists an athlete's verified documents, most recently uploaded first. */
-export async function listDocuments(athleteId: string): Promise<VerifiedDocument[]> {
+export async function listDocuments(
+  athleteId: string
+): Promise<{ data: VerifiedDocument[]; error: boolean }> {
   const { data, error } = await withSessionRetry(() =>
     supabase
       .from("verified_documents")
@@ -24,10 +26,10 @@ export async function listDocuments(athleteId: string): Promise<VerifiedDocument
 
   if (error) {
     console.error("Failed to list documents:", error.message)
-    return []
+    return { data: [], error: true }
   }
 
-  return data ?? []
+  return { data: data ?? [], error: false }
 }
 
 /** Validates a file before upload. Returns an error message, or null if valid. */

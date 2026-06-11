@@ -34,14 +34,16 @@ export default function CareerTimeline({
 }) {
   const [entries, setEntries] = useState<TimelineEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [form, setForm] = useState(emptyEntry);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    listTimelineEntries(athleteId).then((data) => {
+    listTimelineEntries(athleteId).then(({ data, error }) => {
       setEntries(data);
+      setLoadError(error);
       setLoading(false);
     });
   }, [athleteId]);
@@ -96,7 +98,13 @@ export default function CareerTimeline({
 
   return (
     <SectionCard title="Career Timeline" icon={<ClockIcon className="w-5 h-5 text-orange-400" />}>
-      {entries.length === 0 && !showForm && (
+      {loadError && (
+        <p className="text-red-400 text-sm mb-4">
+          Couldn&apos;t load timeline entries. Please refresh the page to try again.
+        </p>
+      )}
+
+      {!loadError && entries.length === 0 && !showForm && (
         <p className="text-gray-400 text-sm mb-4">No timeline entries added yet.</p>
       )}
 

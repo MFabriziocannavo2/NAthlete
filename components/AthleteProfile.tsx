@@ -38,6 +38,7 @@ import { InstagramIcon, LinkedInIcon, XIcon } from "@/components/ui/SocialIcons"
 import { getYouTubeEmbedUrl, getYouTubeThumbnail } from "@/lib/youtube";
 import { getAge, parseLines } from "@/lib/profile";
 import { getProfileUrl } from "@/lib/site";
+import { toSafeHref } from "@/lib/url";
 import { countFollowers } from "@/lib/follow";
 import type { Athlete } from "@/lib/types";
 
@@ -115,7 +116,7 @@ export default function AthleteProfile({
               <p className="text-yellow-400 text-sm">
                 Could not embed video.{" "}
                 <a
-                  href={athlete.highlight_video!}
+                  href={toSafeHref(athlete.highlight_video)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="underline"
@@ -148,7 +149,7 @@ export default function AthleteProfile({
               return (
                 <a
                   key={i}
-                  href={url}
+                  href={toSafeHref(url)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="block aspect-video rounded-lg overflow-hidden bg-white/5 border border-white/10 hover:opacity-80 transition"
@@ -313,7 +314,7 @@ export default function AthleteProfile({
               {socialLinks.map((link) => (
                 <a
                   key={link.label}
-                  href={link.url!}
+                  href={toSafeHref(link.url)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-gray-200 hover:bg-white/10 transition text-sm"
@@ -407,7 +408,7 @@ export default function AthleteProfile({
                   {socialLinks.map((link) => (
                     <a
                       key={link.label}
-                      href={link.url!}
+                      href={toSafeHref(link.url)}
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={link.label}

@@ -3,7 +3,9 @@ import { withSessionRetry } from "@/lib/supabaseRetry"
 import type { TimelineEntry } from "@/lib/types"
 
 /** Lists an athlete's career timeline entries, most recent first. */
-export async function listTimelineEntries(athleteId: string): Promise<TimelineEntry[]> {
+export async function listTimelineEntries(
+  athleteId: string
+): Promise<{ data: TimelineEntry[]; error: boolean }> {
   const { data, error } = await withSessionRetry(() =>
     supabase
       .from("timeline_entries")
@@ -15,10 +17,10 @@ export async function listTimelineEntries(athleteId: string): Promise<TimelineEn
 
   if (error) {
     console.error("Failed to list timeline entries:", error.message)
-    return []
+    return { data: [], error: true }
   }
 
-  return data ?? []
+  return { data: data ?? [], error: false }
 }
 
 export async function createTimelineEntry(
