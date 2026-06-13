@@ -6,12 +6,13 @@ export default function CTASection() {
       <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-r from-orange-600/20 to-amber-500/20" />
 
       <h2 className="text-3xl font-bold mb-4 text-white">
-        Ready to Get Discovered?
+        Ready to Build Your Athletic Identity?
       </h2>
 
       <p className="mb-8 text-gray-300 max-w-xl mx-auto">
-        Join NAthlete today and showcase your talent to coaches around the
-        world.
+        Join NAthlete and create a professional profile that showcases your
+        achievements, highlights, academics, and recruiting information to
+        coaches and universities around the world.
       </p>
 
       <Link

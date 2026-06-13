@@ -2,12 +2,16 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/lib/AuthContext";
 import Navbar from "@/components/Navbar";
 import AthleteCard from "@/components/AthleteCard";
+import GlassCard from "@/components/ui/GlassCard";
+import ButtonLink from "@/components/ui/ButtonLink";
 import { Input } from "@/components/ui/Input";
 import type { Athlete } from "@/lib/types";
 
 export default function AthletesPage() {
+  const { user, loading: authLoading } = useAuth();
   const [athletes, setAthletes] = useState<Athlete[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
@@ -63,14 +67,32 @@ export default function AthletesPage() {
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2">
             Discover Athletes
           </h1>
-          <p className="text-gray-400">
-            Browse athlete profiles and find your next recruit.
+          <p className="text-gray-400 max-w-2xl">
+            Explore athlete profiles, achievements, highlights, academics,
+            recruiting information, and athletic journeys from athletes
+            around the world.
           </p>
         </div>
+
+        {!authLoading && !user && (
+          <GlassCard className="p-5 sm:p-6 mb-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="text-center sm:text-left">
+              <p className="font-semibold text-white">Are you an athlete?</p>
+              <p className="text-sm text-gray-400">
+                Build your own digital athletic identity and get discovered
+                by coaches, recruiters, and universities.
+              </p>
+            </div>
+            <ButtonLink href="/signup" className="w-full sm:w-auto shrink-0">
+              Create Your Athlete Profile
+            </ButtonLink>
+          </GlassCard>
+        )}
 
         <div className="flex flex-col sm:flex-row gap-4 mb-8">
           <Input
             placeholder="Search by name, position, or school..."
+            aria-label="Search by name, position, or school"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="sm:flex-1"
@@ -79,6 +101,7 @@ export default function AthletesPage() {
           <select
             value={sport}
             onChange={(e) => setSport(e.target.value)}
+            aria-label="Filter by sport"
             className="bg-white/5 border border-white/10 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition sm:w-56 [color-scheme:dark]"
           >
             <option value="">All sports</option>

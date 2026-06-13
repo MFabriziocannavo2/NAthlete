@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/AuthContext";
 import { profilePath } from "@/lib/profile";
-import Navbar from "@/components/Navbar";
+import LoadingScreen from "@/components/ui/LoadingScreen";
 
 export default function MyProfilePage() {
   const router = useRouter();
@@ -46,10 +46,5 @@ export default function MyProfilePage() {
     redirect();
   }, [user, loading, router]);
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white">
-      <Navbar />
-      <p className="p-6 text-gray-300">Loading...</p>
-    </div>
-  );
+  return <LoadingScreen message="Loading your profile..." />;
 }

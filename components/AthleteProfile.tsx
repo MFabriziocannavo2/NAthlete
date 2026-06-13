@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import {
   AcademicCapIcon,
@@ -24,6 +24,7 @@ import {
   UsersIcon,
 } from "@heroicons/react/24/outline";
 import GlassCard from "@/components/ui/GlassCard";
+import ProfileAvatar from "@/components/ProfileAvatar";
 import SectionCard from "@/components/ui/SectionCard";
 import StatCard from "@/components/ui/StatCard";
 import Button from "@/components/ui/Button";
@@ -39,7 +40,6 @@ import { getYouTubeEmbedUrl, getYouTubeThumbnail } from "@/lib/youtube";
 import { getAge, parseLines } from "@/lib/profile";
 import { getProfileUrl } from "@/lib/site";
 import { toSafeHref } from "@/lib/url";
-import { countFollowers } from "@/lib/follow";
 import type { Athlete } from "@/lib/types";
 
 function StatItem({ label, value }: { label: string; value?: string | null }) {
@@ -69,7 +69,7 @@ export default function AthleteProfile({
   isOwner?: boolean;
 }) {
   const [shareOpen, setShareOpen] = useState(false);
-  const [followerCount, setFollowerCount] = useState<number | null>(null);
+  const [photoUrl, setPhotoUrl] = useState(athlete.profile_photo_url ?? null);
 
   const embedUrl = athlete.highlight_video
     ? getYouTubeEmbedUrl(athlete.highlight_video)
@@ -80,10 +80,6 @@ export default function AthleteProfile({
   const achievements = athlete.achievements_json ?? [];
   const academicAwards = parseLines(athlete.academic_awards);
   const galleryItems = parseLines(athlete.media_gallery);
-
-  useEffect(() => {
-    countFollowers(athlete.id).then(setFollowerCount);
-  }, [athlete.id]);
 
   const profileUrl = getProfileUrl(athlete);
 
@@ -340,18 +336,13 @@ export default function AthleteProfile({
       <GlassCard className="p-6 sm:p-8">
         <div className="flex flex-col sm:flex-row justify-between items-start gap-6">
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
-            {athlete.profile_photo_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={athlete.profile_photo_url}
-                alt={athlete.name}
-                className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover border-2 border-white/10 shrink-0"
-              />
-            ) : (
-              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center text-3xl font-bold shrink-0">
-                {athlete.name?.charAt(0)}
-              </div>
-            )}
+            <ProfileAvatar
+              athleteId={athlete.id}
+              name={athlete.name}
+              photoUrl={photoUrl}
+              isOwner={isOwner}
+              onPhotoChange={setPhotoUrl}
+            />
 
             <div>
               <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
@@ -388,12 +379,6 @@ export default function AthleteProfile({
                 {athlete.languages && (
                   <Chip icon={<LanguageIcon className="w-4 h-4" />}>
                     {athlete.languages}
-                  </Chip>
-                )}
-                {followerCount !== null && (
-                  <Chip icon={<UsersIcon className="w-4 h-4" />}>
-                    {followerCount}{" "}
-                    {followerCount === 1 ? "follower" : "followers"}
                   </Chip>
                 )}
                 {athlete.is_private && (

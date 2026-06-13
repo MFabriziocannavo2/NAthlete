@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/AuthContext";
 import Navbar from "@/components/Navbar";
+import LoadingScreen from "@/components/ui/LoadingScreen";
 import AthleteProfile from "@/components/AthleteProfile";
 import PrivateProfileGate from "@/components/PrivateProfileGate";
 import type { Athlete, AthletePreview } from "@/lib/types";
@@ -49,12 +50,7 @@ export default function UsernameProfileClient({ username }: { username: string }
   }, [username]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white">
-        <Navbar />
-        <p className="p-6 text-gray-300">Loading...</p>
-      </div>
-    );
+    return <LoadingScreen message="Loading profile..." />;
   }
 
   if (athlete) {

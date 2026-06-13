@@ -112,6 +112,92 @@ export interface Athlete {
   created_at?: string
 }
 
+export interface AthleteFormValues {
+  username: string
+  profile_photo_url: string
+  name: string
+  date_of_birth: string
+  nationality: string
+  location: string
+  languages: string
+  sport: string
+  position: string
+  height: string
+  weight: string
+  school: string
+  graduation_year: string
+  gpa: string
+  sat: string
+  act: string
+  toefl: string
+  det: string
+  academic_awards: string
+  highlight_video: string
+  bio: string
+  achievements: string
+  achievements_json: AchievementItem[]
+  media_gallery: string
+  vertical_jump: string
+  sprint_time: string
+  vo2_max: string
+  dominant_foot: string
+  body_fat: string
+  resting_hr: string
+  preferred_positions: string
+  jersey_number: string
+  current_team: string
+  team_type: string
+  recruiting_status: string
+  agent_contact: string
+  instagram_url: string
+  twitter_url: string
+  linkedin_url: string
+  is_private: boolean
+}
+
+export const emptyAthleteForm: AthleteFormValues = {
+  username: "",
+  profile_photo_url: "",
+  name: "",
+  date_of_birth: "",
+  nationality: "",
+  location: "",
+  languages: "",
+  sport: "",
+  position: "",
+  height: "",
+  weight: "",
+  school: "",
+  graduation_year: "",
+  gpa: "",
+  sat: "",
+  act: "",
+  toefl: "",
+  det: "",
+  academic_awards: "",
+  highlight_video: "",
+  bio: "",
+  achievements: "",
+  achievements_json: [],
+  media_gallery: "",
+  vertical_jump: "",
+  sprint_time: "",
+  vo2_max: "",
+  dominant_foot: "",
+  body_fat: "",
+  resting_hr: "",
+  preferred_positions: "",
+  jersey_number: "",
+  current_team: "",
+  team_type: "",
+  recruiting_status: "",
+  agent_contact: "",
+  instagram_url: "",
+  twitter_url: "",
+  linkedin_url: "",
+  is_private: false,
+}
+
 export type FollowStatus = "pending" | "accepted"
 
 export interface Follow {

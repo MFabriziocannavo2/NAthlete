@@ -1,28 +1,34 @@
 const features = [
   {
-    title: "Athlete Profiles",
+    title: "A Profile That's Truly Yours",
     description:
-      "Create a profile that showcases your stats, academic background, and athletic achievements.",
-    icon: "🏅",
+      "Build a professional digital identity with your stats, academic background, achievements, and athletic journey all in one place.",
+    icon: "🆔",
   },
   {
-    title: "Highlight Videos",
+    title: "Highlights & Achievements",
     description:
-      "Share your best plays and get noticed by coaches.",
+      "Showcase your highlight videos and career milestones so coaches can see your story, not just your stats.",
     icon: "🎬",
   },
   {
-    title: "Coach Connections",
+    title: "Recruiting Snapshot",
     description:
-      "Coaches can easily search and connect with talented athletes.",
-    icon: "🤝",
+      "Surface the recruiting and academic information coaches look for — graduation year, GPA, test scores, and recruiting status.",
+    icon: "📋",
+  },
+  {
+    title: "Share With the World",
+    description:
+      "Send coaches, recruiters, and universities a single link to your always-up-to-date athletic identity.",
+    icon: "🔗",
   },
 ];
 
 export default function FeaturesSection() {
   return (
     <section className="py-20 px-6">
-      <div className="max-w-6xl mx-auto grid md:grid-cols-3 gap-6">
+      <div className="max-w-6xl mx-auto grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {features.map((feature) => (
           <div
             key={feature.title}

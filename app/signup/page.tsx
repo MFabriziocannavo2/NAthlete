@@ -6,6 +6,7 @@ import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { getSiteUrl } from "@/lib/site";
 import Navbar from "@/components/Navbar";
+import LoadingScreen from "@/components/ui/LoadingScreen";
 import GlassCard from "@/components/ui/GlassCard";
 import Button from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -15,13 +16,12 @@ export default function SignupPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [redirecting, setRedirecting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
-    setMessage(null);
     setIsSubmitting(true);
 
     const { data, error } = await supabase.auth.signUp({
@@ -39,14 +39,19 @@ export default function SignupPage() {
     }
 
     if (data.session) {
+      setRedirecting(true);
       router.push("/create-profile");
       router.refresh();
       return;
     }
 
-    setMessage("Check your email to confirm your account before logging in.");
-    setIsSubmitting(false);
+    setRedirecting(true);
+    router.push(`/verify-email?email=${encodeURIComponent(email)}`);
   };
+
+  if (redirecting) {
+    return <LoadingScreen message="Setting up your account..." />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white">
@@ -82,7 +87,6 @@ export default function SignupPage() {
             />
 
             {error && <p className="text-sm text-red-400">{error}</p>}
-            {message && <p className="text-sm text-green-400">{message}</p>}
 
             <Button type="submit" disabled={isSubmitting} className="w-full">
               {isSubmitting ? "Creating account..." : "Sign Up"}

@@ -17,11 +17,12 @@ export default async function HighlightFeedPreview() {
     <section id="highlights" className="py-20 px-6">
       <div className="max-w-6xl mx-auto text-center">
         <h2 className="text-3xl font-bold mb-4 text-white">
-          Athlete Highlights
+          Featured Athletic Journeys
         </h2>
 
         <p className="text-gray-400 mb-10">
-          Watch the latest highlights from athletes around the world.
+          Get a glimpse of the highlight reels and athletic journeys athletes
+          are showcasing on their NAthlete profiles.
         </p>
 
         {highlights.length === 0 ? (

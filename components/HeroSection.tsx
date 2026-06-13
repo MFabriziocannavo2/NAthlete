@@ -10,7 +10,7 @@ export default function HeroSection() {
       </div>
 
       <span className="inline-block mb-6 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 text-sm font-medium text-orange-300">
-        Your Athlete Profile, Elevated
+        Your Digital Athletic Identity
       </span>
 
       <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight mb-6">
@@ -21,8 +21,9 @@ export default function HeroSection() {
       </h1>
 
       <p className="text-lg text-gray-300 max-w-2xl mx-auto mb-10">
-        Create your NAthlete profile, share your highlights, and connect with
-        coaches and universities around the world.
+        Create your NAthlete profile, showcase your achievements, highlights,
+        academics, and recruiting information, and connect with coaches and
+        universities around the world.
       </p>
 
       <div className="flex flex-col sm:flex-row justify-center gap-4">

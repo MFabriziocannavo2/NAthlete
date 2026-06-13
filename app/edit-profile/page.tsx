@@ -6,6 +6,7 @@ import { supabase } from "@/lib/supabase"
 import { useAuth } from "@/lib/AuthContext"
 import { profilePath, sanitizeForDb } from "@/lib/profile"
 import Navbar from "@/components/Navbar"
+import LoadingScreen from "@/components/ui/LoadingScreen"
 import AthleteForm, { type AthleteFormValues } from "@/components/AthleteForm"
 import type { Athlete } from "@/lib/types"
 
@@ -114,12 +115,7 @@ export default function EditProfile() {
   }
 
   if (loading || !user || fetching || !athlete) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white">
-        <Navbar />
-        <p className="p-6 text-gray-300">Loading...</p>
-      </div>
-    )
+    return <LoadingScreen />
   }
 
   return (
@@ -132,11 +128,13 @@ export default function EditProfile() {
             Edit Your Profile
           </h1>
           <p className="text-gray-400">
-            Update your information at any time.
+            Jump to any section below to complete or update your athletic
+            identity. Your changes are saved when you submit the form.
           </p>
         </div>
 
         <AthleteForm
+          mode="full"
           initialValues={toFormValues(athlete)}
           onSubmit={handleSubmit}
           submitLabel="Save Changes"
