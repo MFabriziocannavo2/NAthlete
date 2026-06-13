@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useAuth } from "@/lib/AuthContext";
+import Logo from "@/components/ui/Logo";
 
 const navLinks = [{ label: "Discover", href: "/athletes" }];
 
@@ -25,11 +26,8 @@ export default function Navbar() {
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center">
-          <Link
-            href="/"
-            className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent select-none"
-          >
-            NAthlete
+          <Link href="/" aria-label="NAthlete home">
+            <Logo size="md" withWordmark />
           </Link>
         </div>
 

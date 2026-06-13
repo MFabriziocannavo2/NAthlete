@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/AuthContext"
 import { profilePath, sanitizeForDb } from "@/lib/profile"
 import Navbar from "@/components/Navbar"
 import LoadingScreen from "@/components/ui/LoadingScreen"
+import Logo from "@/components/ui/Logo"
 import AthleteForm, { type AthleteFormValues } from "@/components/AthleteForm"
 import type { Athlete } from "@/lib/types"
 
@@ -124,6 +125,7 @@ export default function EditProfile() {
 
       <div className="max-w-2xl mx-auto px-6 py-12">
         <div className="mb-8 text-center">
+          <Logo size="lg" className="justify-center mb-4" />
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2">
             Edit Your Profile
           </h1>

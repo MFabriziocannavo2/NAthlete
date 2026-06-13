@@ -8,6 +8,7 @@ import Navbar from "@/components/Navbar";
 import GlassCard from "@/components/ui/GlassCard";
 import Button from "@/components/ui/Button";
 import ButtonLink from "@/components/ui/ButtonLink";
+import Logo from "@/components/ui/Logo";
 import { resendConfirmationEmail } from "@/lib/auth";
 
 const RESEND_COOLDOWN_SECONDS = 30;
@@ -55,6 +56,7 @@ function VerifyEmailContent() {
 
       <div className="max-w-md mx-auto px-6 py-16">
         <div className="mb-8 text-center">
+          <Logo size="lg" className="justify-center mb-4" />
           <div className="mx-auto mb-4 w-14 h-14 rounded-full bg-orange-500/10 flex items-center justify-center">
             <EnvelopeIcon className="w-7 h-7 text-orange-400" />
           </div>

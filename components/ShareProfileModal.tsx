@@ -9,6 +9,7 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import GlassCard from "@/components/ui/GlassCard";
+import Logo from "@/components/ui/Logo";
 import { LinkedInIcon, WhatsAppIcon, XIcon } from "@/components/ui/SocialIcons";
 
 export default function ShareProfileModal({
@@ -89,7 +90,10 @@ export default function ShareProfileModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-white">Share Profile</h2>
+          <div className="flex items-center gap-2">
+            <Logo size="sm" />
+            <h2 className="text-lg font-bold text-white">Share Profile</h2>
+          </div>
           <button
             onClick={onClose}
             className="text-gray-400 hover:text-white transition"

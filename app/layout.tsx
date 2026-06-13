@@ -13,10 +13,31 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://nathlete.app";
+const SITE_TITLE = "NAthlete — Get Discovered. Get Recruited.";
+const SITE_DESCRIPTION =
+  "NAthlete connects athletes with coaches and university recruiting opportunities. Create your athletic profile and showcase your highlights.";
+
 export const metadata: Metadata = {
-  title: "NAthlete — Get Discovered. Get Recruited.",
-  description:
-    "NAthlete connects athletes with coaches and university recruiting opportunities. Create your athletic profile and showcase your highlights.",
+  metadataBase: new URL(SITE_URL),
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  icons: {
+    icon: "/icon",
+    apple: "/apple-icon",
+  },
+  openGraph: {
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    url: SITE_URL,
+    siteName: "NAthlete",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+  },
 };
 
 export default function RootLayout({

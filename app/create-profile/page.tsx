@@ -9,6 +9,7 @@ import { loadProfileDraft, clearProfileDraft } from "@/lib/profileDraft"
 import Navbar from "@/components/Navbar"
 import GlassCard from "@/components/ui/GlassCard"
 import Button from "@/components/ui/Button"
+import Logo from "@/components/ui/Logo"
 import LoadingScreen from "@/components/ui/LoadingScreen"
 import AthleteForm, { emptyAthleteForm, type AthleteFormValues } from "@/components/AthleteForm"
 
@@ -100,6 +101,7 @@ export default function CreateProfile() {
 
       <div className="max-w-2xl mx-auto px-6 py-12">
         <div className="mb-8 text-center">
+          <Logo size="lg" className="justify-center mb-4" />
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2">
             Create Your NAthlete Profile
           </h1>

@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
 import { supabase } from "@/lib/supabase";
+import { LOGO_MARK_DATA_URI, LOGO_ASPECT_RATIO } from "@/components/brand/logo-data";
 
 export const runtime = "edge";
 export const size = { width: 1200, height: 630 };
@@ -102,21 +103,30 @@ export default async function Image({
           </div>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          <div style={{ fontSize: 28, color: "#d1d5db" }}>
-            Professional Athlete Profile
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <div style={{ fontSize: 28, color: "#d1d5db" }}>
+              Professional Athlete Profile
+            </div>
+            <div
+              style={{
+                fontSize: 44,
+                fontWeight: 800,
+                backgroundImage: "linear-gradient(90deg, #fb923c, #fbbf24)",
+                backgroundClip: "text",
+                color: "transparent",
+              }}
+            >
+              NAthlete
+            </div>
           </div>
-          <div
-            style={{
-              fontSize: 44,
-              fontWeight: 800,
-              backgroundImage: "linear-gradient(90deg, #fb923c, #fbbf24)",
-              backgroundClip: "text",
-              color: "transparent",
-            }}
-          >
-            NAthlete
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={LOGO_MARK_DATA_URI}
+            width={140}
+            height={Math.round(140 / LOGO_ASPECT_RATIO)}
+            alt=""
+          />
         </div>
       </div>
     ),

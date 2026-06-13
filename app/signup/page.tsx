@@ -9,6 +9,7 @@ import Navbar from "@/components/Navbar";
 import LoadingScreen from "@/components/ui/LoadingScreen";
 import GlassCard from "@/components/ui/GlassCard";
 import Button from "@/components/ui/Button";
+import Logo from "@/components/ui/Logo";
 import { Input } from "@/components/ui/Input";
 
 export default function SignupPage() {
@@ -59,6 +60,7 @@ export default function SignupPage() {
 
       <div className="max-w-md mx-auto px-6 py-16">
         <div className="mb-8 text-center">
+          <Logo size="lg" className="justify-center mb-4" />
           <h1 className="text-3xl font-extrabold tracking-tight mb-2">
             Create Account
           </h1>

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/AuthContext";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import AthleteCard from "@/components/AthleteCard";
 import GlassCard from "@/components/ui/GlassCard";
 import ButtonLink from "@/components/ui/ButtonLink";
@@ -59,10 +60,10 @@ export default function AthletesPage() {
   }, [athletes, search, sport]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white">
       <Navbar />
 
-      <div className="max-w-6xl mx-auto px-6 py-10">
+      <div className="max-w-6xl mx-auto px-6 py-10 flex-1 w-full">
         <div className="mb-8">
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-2">
             Discover Athletes
@@ -133,6 +134,8 @@ export default function AthletesPage() {
           </div>
         )}
       </div>
+
+      <Footer />
     </div>
   );
 }
