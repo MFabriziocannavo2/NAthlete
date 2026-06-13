@@ -27,7 +27,7 @@ export default function Navbar() {
         {/* Logo */}
         <div className="flex items-center">
           <Link href="/" aria-label="NAthlete home">
-            <Logo size="md" withWordmark />
+            <Logo size="md" />
           </Link>
         </div>
 
