@@ -1,8 +1,36 @@
+import { useState } from "react"
 import { Input } from "@/components/ui/Input"
 import AvatarUpload from "@/components/AvatarUpload"
+import SearchableSelect from "@/components/ui/SearchableSelect"
+import { COUNTRIES, OTHER_COUNTRY } from "@/lib/countries"
 import type { SectionProps } from "../types"
 
+const NATIONALITY_OPTIONS = [...COUNTRIES, OTHER_COUNTRY]
+
 export default function PersonalInfoSection({ form, onChange, setForm }: SectionProps) {
+  const isKnownCountry = (value: string) =>
+    COUNTRIES.includes(value as (typeof COUNTRIES)[number])
+
+  // Tracks whether "Other" is selected even while the custom nationality text is empty.
+  const [otherSelected, setOtherSelected] = useState(
+    () => !!form.nationality && !isKnownCountry(form.nationality)
+  )
+
+  const dropdownValue = otherSelected ? OTHER_COUNTRY : form.nationality
+  const showCustomInput = otherSelected
+
+  const handleNationalitySelect = (selected: string) => {
+    if (selected === OTHER_COUNTRY) {
+      setOtherSelected(true)
+      if (isKnownCountry(form.nationality)) {
+        setForm({ ...form, nationality: "" })
+      }
+    } else {
+      setOtherSelected(false)
+      setForm({ ...form, nationality: selected })
+    }
+  }
+
   return (
     <>
       <AvatarUpload
@@ -42,12 +70,24 @@ export default function PersonalInfoSection({ form, onChange, setForm }: Section
         className="[color-scheme:dark]"
       />
 
-      <Input
-        name="nationality"
-        placeholder="Nationality"
-        value={form.nationality}
-        onChange={onChange}
-      />
+      <div>
+        <SearchableSelect
+          name="nationality"
+          options={NATIONALITY_OPTIONS}
+          value={dropdownValue}
+          onChange={handleNationalitySelect}
+          placeholder="Nationality"
+        />
+        {showCustomInput && (
+          <Input
+            name="nationality"
+            placeholder="Enter your nationality"
+            value={form.nationality}
+            onChange={onChange}
+            className="mt-2"
+          />
+        )}
+      </div>
 
       <Input
         name="location"

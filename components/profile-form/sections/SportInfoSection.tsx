@@ -1,16 +1,56 @@
+import { useState } from "react"
 import { Input } from "@/components/ui/Input"
+import SearchableSelect from "@/components/ui/SearchableSelect"
+import { SPORTS, OTHER_SPORT } from "@/lib/sports"
 import type { SectionProps } from "../types"
 
-export default function SportInfoSection({ form, onChange }: SectionProps) {
+const SPORT_OPTIONS = [...SPORTS, OTHER_SPORT]
+
+export default function SportInfoSection({ form, onChange, setForm }: SectionProps) {
+  const isKnownSport = (sport: string) => SPORTS.includes(sport as (typeof SPORTS)[number])
+
+  // Tracks whether "Other" is selected even while the custom sport text is empty.
+  const [otherSelected, setOtherSelected] = useState(
+    () => !!form.sport && !isKnownSport(form.sport)
+  )
+
+  const dropdownValue = otherSelected ? OTHER_SPORT : form.sport
+  const showCustomInput = otherSelected
+
+  const handleSportSelect = (selected: string) => {
+    if (selected === OTHER_SPORT) {
+      setOtherSelected(true)
+      if (isKnownSport(form.sport)) {
+        setForm({ ...form, sport: "" })
+      }
+    } else {
+      setOtherSelected(false)
+      setForm({ ...form, sport: selected })
+    }
+  }
+
   return (
     <>
-      <Input
-        name="sport"
-        placeholder="Sport *"
-        value={form.sport}
-        onChange={onChange}
-        required
-      />
+      <div>
+        <SearchableSelect
+          name="sport"
+          options={SPORT_OPTIONS}
+          value={dropdownValue}
+          onChange={handleSportSelect}
+          placeholder="Select a sport *"
+          required
+        />
+        {showCustomInput && (
+          <Input
+            name="sport"
+            placeholder="Enter your sport *"
+            value={form.sport}
+            onChange={onChange}
+            required
+            className="mt-2"
+          />
+        )}
+      </div>
 
       <Input
         name="position"

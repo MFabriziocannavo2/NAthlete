@@ -52,10 +52,28 @@ export default function AthleteCard({ athlete }: { athlete: Athlete }) {
           )}
         </div>
         <div className="p-4">
-          <h3 className="font-semibold text-white">{athlete.name}</h3>
-          <p className="text-sm text-gray-400">
-            {athlete.sport} • {athlete.position}
-          </p>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 shrink-0 bg-gray-800">
+              {athlete.profile_photo_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={athlete.profile_photo_url}
+                  alt={athlete.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-orange-500 to-amber-500 flex items-center justify-center text-sm font-bold text-white">
+                  {athlete.name?.charAt(0)?.toUpperCase()}
+                </div>
+              )}
+            </div>
+            <div className="min-w-0">
+              <h3 className="font-semibold text-white truncate">{athlete.name}</h3>
+              <p className="text-sm text-gray-400 truncate">
+                {athlete.sport} • {athlete.position}
+              </p>
+            </div>
+          </div>
           {(athlete.school || athlete.location) && (
             <p className="text-xs text-gray-500 mt-1">
               {[athlete.school, athlete.location].filter(Boolean).join(" • ")}

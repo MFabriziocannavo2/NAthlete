@@ -3,7 +3,9 @@
 import { useRef, useState } from "react";
 import { CameraIcon, TrashIcon } from "@heroicons/react/24/outline";
 import { useAuth } from "@/lib/AuthContext";
-import { removeAvatar, uploadAvatar } from "@/lib/avatar";
+import { ACCEPTED_FORMATS_LABEL, removeAvatar, uploadAvatar } from "@/lib/avatar";
+import { useAvatarUpload } from "@/lib/useAvatarUpload";
+import ImageCropModal from "@/components/ImageCropModal";
 
 export default function ProfileAvatar({
   athleteId,
@@ -20,42 +22,44 @@ export default function ProfileAvatar({
 }) {
   const { user } = useAuth();
   const inputRef = useRef<HTMLInputElement>(null);
-  const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [removing, setRemoving] = useState(false);
+  const [removeError, setRemoveError] = useState<string | null>(null);
 
-  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const { status, message, cropSrc, handleFileSelect, handleCropCancel, handleCropSave } =
+    useAvatarUpload((blob) => {
+      if (!user) return Promise.resolve({ error: "You must be signed in to upload a photo." });
+      return uploadAvatar(user.id, athleteId, blob);
+    });
+
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = "";
-    if (!file || !user) return;
+    if (!file) return;
+    handleFileSelect(file);
+  };
 
-    setUploading(true);
-    setError(null);
-
-    const { url, error: uploadError } = await uploadAvatar(user.id, athleteId, file);
-
-    if (uploadError) {
-      setError(uploadError);
-    } else if (url) {
-      onPhotoChange(url);
-    }
-
-    setUploading(false);
+  const onCropSave = async (blob: Blob) => {
+    const url = await handleCropSave(blob);
+    if (url) onPhotoChange(url);
   };
 
   const handleRemove = async () => {
-    setUploading(true);
-    setError(null);
+    setRemoving(true);
+    setRemoveError(null);
 
-    const { error: removeError } = await removeAvatar(athleteId);
+    const { error } = await removeAvatar(athleteId);
 
-    if (removeError) {
-      setError(removeError);
+    if (error) {
+      setRemoveError(error);
     } else {
       onPhotoChange(null);
     }
 
-    setUploading(false);
+    setRemoving(false);
   };
+
+  const uploading = status === "uploading";
+  const busy = uploading || removing;
 
   const avatar = photoUrl ? (
     // eslint-disable-next-line @next/next/no-img-element
@@ -84,7 +88,7 @@ export default function ProfileAvatar({
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
-          disabled={uploading}
+          disabled={busy}
           className="relative group w-full h-full rounded-full overflow-hidden border-2 border-white/10 block"
           aria-label={photoUrl ? "Change profile photo" : "Upload profile photo"}
         >
@@ -92,14 +96,14 @@ export default function ProfileAvatar({
 
           <div className="absolute inset-0 bg-black/50 flex items-center justify-center transition opacity-0 group-hover:opacity-100">
             {uploading ? (
-              <span className="text-xs text-white">Uploading...</span>
+              <span className="text-xs text-white text-center px-1">Uploading photo…</span>
             ) : (
               <CameraIcon className="w-7 h-7 text-white" />
             )}
           </div>
         </button>
 
-        {photoUrl && !uploading && (
+        {photoUrl && !busy && (
           <button
             type="button"
             onClick={handleRemove}
@@ -114,12 +118,26 @@ export default function ProfileAvatar({
       <input
         ref={inputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp,image/gif"
+        accept="image/jpeg,image/png,image/webp"
         className="hidden"
         onChange={handleFile}
       />
 
-      {error && <p className="text-xs text-red-400 text-center max-w-[7rem]">{error}</p>}
+      <p className="text-xs text-gray-500 text-center max-w-[7rem]">
+        {ACCEPTED_FORMATS_LABEL} (max 10MB)
+      </p>
+
+      {status === "success" && (
+        <p className="text-xs text-green-400 text-center max-w-[7rem]">Photo uploaded successfully.</p>
+      )}
+      {status === "error" && message && (
+        <p className="text-xs text-red-400 text-center max-w-[7rem]">{message}</p>
+      )}
+      {removeError && <p className="text-xs text-red-400 text-center max-w-[7rem]">{removeError}</p>}
+
+      {cropSrc && (
+        <ImageCropModal imageSrc={cropSrc} onCancel={handleCropCancel} onSave={onCropSave} />
+      )}
     </div>
   );
 }
