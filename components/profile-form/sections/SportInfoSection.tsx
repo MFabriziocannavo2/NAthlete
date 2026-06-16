@@ -63,16 +63,17 @@ export default function SportInfoSection({ form, onChange, setForm }: SectionPro
       <div className="grid grid-cols-2 gap-4">
         <Input
           name="height"
-          placeholder="Height (cm)"
+          placeholder="Height (e.g. 6'2&quot;)"
           value={form.height}
           onChange={onChange}
         />
 
         <Input
           name="weight"
-          placeholder="Weight (kg)"
+          placeholder="Weight (lbs)"
           value={form.weight}
           onChange={onChange}
+          inputMode="decimal"
         />
       </div>
     </>

@@ -127,8 +127,8 @@ export default function AthleteProfile({
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {age != null && <StatCard label="Age" value={`${age}`} />}
-        {athlete.height && <StatCard label="Height" value={`${athlete.height} cm`} />}
-        {athlete.weight && <StatCard label="Weight" value={`${athlete.weight} kg`} />}
+        {athlete.height && <StatCard label="Height" value={athlete.height} />}
+        {athlete.weight && <StatCard label="Weight" value={`${athlete.weight} lbs`} />}
         {athlete.dominant_foot && (
           <StatCard label="Dominant Foot" value={athlete.dominant_foot} />
         )}
@@ -246,8 +246,8 @@ export default function AthleteProfile({
       icon={<ScaleIcon className="w-5 h-5 text-orange-400" />}
     >
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-        {athlete.height && <StatCard label="Height" value={`${athlete.height} cm`} />}
-        {athlete.weight && <StatCard label="Weight" value={`${athlete.weight} kg`} />}
+        {athlete.height && <StatCard label="Height" value={athlete.height} />}
+        {athlete.weight && <StatCard label="Weight" value={`${athlete.weight} lbs`} />}
         {athlete.dominant_foot && (
           <StatCard label="Dominant Foot/Hand" value={athlete.dominant_foot} />
         )}
