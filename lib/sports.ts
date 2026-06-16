@@ -3,7 +3,8 @@
  * Add or remove sports here — every screen that lists sports reads from this file.
  */
 export const SPORTS = [
-  "Football",
+  "Soccer",
+  "American Football",
   "Basketball",
   "Baseball",
   "Tennis",
