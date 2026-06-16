@@ -26,7 +26,7 @@ function toFormValues(athlete: Athlete): AthleteFormValues {
     weight: athlete.weight ?? "",
     school: athlete.school ?? "",
     graduation_year: athlete.graduation_year ?? "",
-    gpa: athlete.gpa ?? "",
+    gpa: athlete.gpa != null ? String(athlete.gpa) : "",
     sat: athlete.sat ?? "",
     act: athlete.act ?? "",
     toefl: athlete.toefl ?? "",

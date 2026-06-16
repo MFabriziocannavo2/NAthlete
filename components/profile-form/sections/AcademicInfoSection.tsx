@@ -21,9 +21,10 @@ export default function AcademicInfoSection({ form, onChange }: SectionProps) {
 
         <Input
           name="gpa"
-          placeholder="GPA"
+          placeholder="GPA (e.g. 4.0)"
           value={form.gpa}
           onChange={onChange}
+          inputMode="decimal"
         />
       </div>
 
