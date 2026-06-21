@@ -25,8 +25,7 @@ export default function Navbar() {
       <div className="container mx-auto px-3 md:px-4 py-3 flex items-center justify-between gap-2">
         {/* Logo */}
         <Link href="/" aria-label="NAthlete home" className="shrink-0">
-          <Logo size="sm" className="md:hidden" />
-          <Logo size="md" className="hidden md:flex" />
+          <Logo size="md" />
         </Link>
 
         {/* Nav links */}
