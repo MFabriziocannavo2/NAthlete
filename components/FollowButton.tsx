@@ -23,11 +23,15 @@ export default function FollowButton({
     if (!user) return;
 
     let cancelled = false;
-    getFollow(athleteId, user.id).then((result) => {
-      if (cancelled) return;
-      setFollow(result);
-      setFollowLoaded(true);
-    });
+    getFollow(athleteId, user.id)
+      .then((result) => {
+        if (cancelled) return;
+        setFollow(result);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setFollowLoaded(true);
+      });
 
     return () => {
       cancelled = true;

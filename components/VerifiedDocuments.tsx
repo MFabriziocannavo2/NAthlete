@@ -71,7 +71,14 @@ export default function VerifiedDocuments({
     }
   };
 
-  if (loading) return null;
+  if (loading) return (
+    <SectionCard title="Verified Documents" icon={<DocumentTextIcon className="w-5 h-5 text-orange-400" />}>
+      <div className="space-y-3">
+        <div className="h-4 bg-white/5 rounded-lg animate-pulse" />
+        <div className="h-4 bg-white/5 rounded-lg animate-pulse w-2/3" />
+      </div>
+    </SectionCard>
+  );
 
   return (
     <SectionCard

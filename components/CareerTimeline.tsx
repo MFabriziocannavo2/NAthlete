@@ -94,7 +94,14 @@ export default function CareerTimeline({
     }
   };
 
-  if (loading) return null;
+  if (loading) return (
+    <SectionCard title="Career Timeline" icon={<ClockIcon className="w-5 h-5 text-orange-400" />}>
+      <div className="space-y-3">
+        <div className="h-4 bg-white/5 rounded-lg animate-pulse" />
+        <div className="h-4 bg-white/5 rounded-lg animate-pulse w-3/4" />
+      </div>
+    </SectionCard>
+  );
 
   return (
     <SectionCard title="Career Timeline" icon={<ClockIcon className="w-5 h-5 text-orange-400" />}>

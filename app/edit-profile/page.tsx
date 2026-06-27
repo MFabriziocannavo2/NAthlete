@@ -105,7 +105,7 @@ export default function EditProfile() {
       .single()
 
     if (error) {
-      console.error(error)
+      console.error("Error updating profile:", error.message)
       if (error.code === "23505") {
         return { error: "That username is already taken. Please choose another one." }
       }

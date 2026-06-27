@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/lib/AuthContext";
 import { getLoginErrorMessage, resendConfirmationEmail } from "@/lib/auth";
 import Navbar from "@/components/Navbar";
 import LoadingScreen from "@/components/ui/LoadingScreen";
@@ -14,6 +15,7 @@ import { Input } from "@/components/ui/Input";
 
 export default function LoginPage() {
   const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -61,6 +63,12 @@ export default function LoginPage() {
     );
     setResending(false);
   };
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      router.replace("/");
+    }
+  }, [authLoading, user, router]);
 
   if (redirecting) {
     return <LoadingScreen message="Logging you in..." />;

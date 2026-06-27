@@ -1,7 +1,7 @@
 import { profilePath } from "@/lib/profile"
 import type { Athlete } from "@/lib/types"
 
-const FALLBACK_SITE_URL = "https://nathlete.com"
+const FALLBACK_SITE_URL = "https://nathlete.app"
 
 /**
  * Canonical site origin for client-side use (e.g. building a shareable

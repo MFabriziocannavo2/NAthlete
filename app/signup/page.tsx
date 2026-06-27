@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/lib/AuthContext";
 import { getSiteUrl } from "@/lib/site";
 import Navbar from "@/components/Navbar";
 import LoadingScreen from "@/components/ui/LoadingScreen";
@@ -14,6 +15,7 @@ import { Input } from "@/components/ui/Input";
 
 export default function SignupPage() {
   const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -49,6 +51,12 @@ export default function SignupPage() {
     setRedirecting(true);
     router.push(`/verify-email?email=${encodeURIComponent(email)}`);
   };
+
+  useEffect(() => {
+    if (!authLoading && user) {
+      router.replace("/");
+    }
+  }, [authLoading, user, router]);
 
   if (redirecting) {
     return <LoadingScreen message="Setting up your account..." />;
