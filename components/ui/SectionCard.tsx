@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import GlassCard from "./GlassCard";
 
 export default function SectionCard({
   title,
@@ -13,12 +12,12 @@ export default function SectionCard({
   className?: string;
 }) {
   return (
-    <GlassCard className={`p-6 ${className}`}>
-      <h2 className="flex items-center gap-2 text-lg font-semibold text-white mb-4">
+    <div className={`py-5 border-b border-white/10 last:border-0 ${className}`}>
+      <h2 className="flex items-center gap-2 text-base font-semibold text-white mb-4">
         {icon}
         {title}
       </h2>
       {children}
-    </GlassCard>
+    </div>
   );
 }

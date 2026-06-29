@@ -21,17 +21,17 @@ export default function Tabs({
   const activeTab = tabs.find((tab) => tab.id === active) ?? tabs[0];
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap gap-1 bg-white/5 border border-white/10 rounded-xl p-1.5 overflow-x-auto">
+    <div>
+      <div className="flex border-b border-white/10 overflow-x-auto -mx-6 px-6">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             type="button"
             onClick={() => setActive(tab.id)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold whitespace-nowrap transition ${
+            className={`flex items-center gap-1.5 px-3 py-3 text-sm font-medium border-b-2 whitespace-nowrap transition -mb-px ${
               activeTab?.id === tab.id
-                ? "bg-gradient-to-r from-orange-600 to-amber-500 text-white shadow"
-                : "text-gray-400 hover:text-white hover:bg-white/5"
+                ? "border-orange-500 text-orange-400"
+                : "border-transparent text-gray-400 hover:text-white hover:border-white/20"
             }`}
           >
             {tab.icon}
@@ -39,8 +39,7 @@ export default function Tabs({
           </button>
         ))}
       </div>
-
-      <div>{activeTab?.content}</div>
+      <div className="pt-2">{activeTab?.content}</div>
     </div>
   );
 }

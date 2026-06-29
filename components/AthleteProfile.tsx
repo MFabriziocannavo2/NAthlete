@@ -125,14 +125,16 @@ export default function AthleteProfile({
         </div>
       )}
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        {age != null && <StatCard label="Age" value={`${age}`} />}
-        {athlete.height && <StatCard label="Height" value={athlete.height} />}
-        {athlete.weight && <StatCard label="Weight" value={`${athlete.weight} lbs`} />}
-        {athlete.dominant_foot && (
-          <StatCard label="Dominant Foot" value={athlete.dominant_foot} />
-        )}
-      </div>
+      {(age != null || athlete.height || athlete.weight || athlete.dominant_foot) && (
+        <div className="py-5 border-b border-white/10 flex flex-wrap gap-8">
+          {age != null && <StatCard label="Age" value={`${age}`} />}
+          {athlete.height && <StatCard label="Height" value={athlete.height} />}
+          {athlete.weight && <StatCard label="Weight" value={`${athlete.weight} lbs`} />}
+          {athlete.dominant_foot && (
+            <StatCard label="Dominant Foot" value={athlete.dominant_foot} />
+          )}
+        </div>
+      )}
 
       {galleryItems.length > 0 && (
         <SectionCard
@@ -245,7 +247,7 @@ export default function AthleteProfile({
       title="Physiological Data"
       icon={<ScaleIcon className="w-5 h-5 text-orange-400" />}
     >
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+      <div className="flex flex-wrap gap-x-10 gap-y-5">
         {athlete.height && <StatCard label="Height" value={athlete.height} />}
         {athlete.weight && <StatCard label="Weight" value={`${athlete.weight} lbs`} />}
         {athlete.dominant_foot && (
@@ -441,6 +443,7 @@ export default function AthleteProfile({
       )}
 
       {/* TABS */}
+      <GlassCard className="px-6 pt-6 pb-2">
       <Tabs
         tabs={[
           {
@@ -487,6 +490,7 @@ export default function AthleteProfile({
           },
         ]}
       />
+      </GlassCard>
 
       {shareOpen && (
         <ShareProfileModal url={profileUrl} onClose={() => setShareOpen(false)} />

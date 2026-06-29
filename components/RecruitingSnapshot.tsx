@@ -1,6 +1,5 @@
 import { ClipboardDocumentCheckIcon } from "@heroicons/react/24/outline";
-import SectionCard from "@/components/ui/SectionCard";
-import StatCard from "@/components/ui/StatCard";
+import GlassCard from "@/components/ui/GlassCard";
 import type { Athlete } from "@/lib/types";
 
 export default function RecruitingSnapshot({ athlete }: { athlete: Athlete }) {
@@ -17,15 +16,19 @@ export default function RecruitingSnapshot({ athlete }: { athlete: Athlete }) {
   if (fields.length === 0) return null;
 
   return (
-    <SectionCard
-      title="Recruiting Snapshot"
-      icon={<ClipboardDocumentCheckIcon className="w-5 h-5 text-orange-400" />}
-    >
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+    <GlassCard className="px-6 py-5">
+      <h2 className="flex items-center gap-2 text-base font-semibold text-white mb-4">
+        <ClipboardDocumentCheckIcon className="w-5 h-5 text-orange-400" />
+        Recruiting Snapshot
+      </h2>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-4">
         {fields.map((field) => (
-          <StatCard key={field.label} label={field.label} value={field.value!} />
+          <div key={field.label} className="flex flex-col gap-0.5">
+            <span className="text-xs text-gray-400">{field.label}</span>
+            <span className="text-sm font-semibold text-white">{field.value}</span>
+          </div>
         ))}
       </div>
-    </SectionCard>
+    </GlassCard>
   );
 }
