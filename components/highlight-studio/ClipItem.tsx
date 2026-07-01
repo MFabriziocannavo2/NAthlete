@@ -80,6 +80,9 @@ export default function ClipItem({
           {(clip.trimStart > 0 || clip.trimEnd < clip.duration) && (
             <span className="text-xs text-gray-500">trimmed</span>
           )}
+          {clip.speed !== 1 && (
+            <span className="text-xs text-amber-400 font-mono">{clip.speed}×</span>
+          )}
         </div>
       </div>
 

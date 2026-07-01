@@ -1,4 +1,4 @@
-import type { Clip, EditorSettings, ExportSupport } from "@/components/highlight-studio/types";
+import type { Clip, EditorSettings, ExportSupport, OutputResolution } from "@/components/highlight-studio/types";
 
 /** Returns whether the browser can export video via canvas + MediaRecorder. */
 export function checkExportSupport(): ExportSupport {
@@ -123,10 +123,12 @@ async function renderClip(
     };
 
     video.onloadedmetadata = () => {
+      video.playbackRate = clip.speed ?? 1;
       video.currentTime = Math.max(0, clip.trimStart);
     };
 
     video.onseeked = () => {
+      video.playbackRate = clip.speed ?? 1;
       video
         .play()
         .then(() => { rafId = requestAnimationFrame(drawFrame); })
@@ -140,6 +142,12 @@ async function renderClip(
   });
 }
 
+const RESOLUTION: Record<OutputResolution, { w: number; h: number }> = {
+  "480p":  { w: 854,  h: 480  },
+  "720p":  { w: 1280, h: 720  },
+  "1080p": { w: 1920, h: 1080 },
+};
+
 /**
  * Export an array of trimmed clips to a single WebM video Blob.
  * Runs entirely in the browser via canvas + MediaRecorder.
@@ -151,8 +159,7 @@ export async function exportClips(
 ): Promise<Blob> {
   if (clips.length === 0) throw new Error("No clips to export.");
 
-  const WIDTH = 1280;
-  const HEIGHT = 720;
+  const { w: WIDTH, h: HEIGHT } = RESOLUTION[settings.outputResolution];
   const FPS = 30;
 
   // Canvas
@@ -177,6 +184,25 @@ export async function exportClips(
     if (audioTrack) canvasStream.addTrack(audioTrack);
   }
 
+  // Background music
+  let bgAudio: HTMLAudioElement | null = null;
+  let bgSource: MediaElementAudioSourceNode | null = null;
+  let bgGain: GainNode | null = null;
+  if (!settings.muteAudio && settings.backgroundMusicUrl) {
+    try {
+      bgAudio = new Audio(settings.backgroundMusicUrl);
+      bgAudio.loop = true;
+      bgAudio.muted = true;
+      bgSource = audioCtx.createMediaElementSource(bgAudio);
+      bgGain = audioCtx.createGain();
+      bgGain.gain.value = settings.backgroundMusicVolume ?? 0.3;
+      bgSource.connect(bgGain);
+      bgGain.connect(audioDest);
+    } catch {
+      bgAudio = null;
+    }
+  }
+
   const chunks: Blob[] = [];
   const recorder = new MediaRecorder(canvasStream, {
     mimeType,
@@ -187,6 +213,7 @@ export async function exportClips(
   };
 
   recorder.start(250);
+  bgAudio?.play().catch(() => {});
 
   try {
     for (let i = 0; i < clips.length; i++) {
@@ -203,6 +230,8 @@ export async function exportClips(
       );
     }
   } finally {
+    bgAudio?.pause();
+    bgSource?.disconnect();
     await new Promise<void>((resolve) => {
       recorder.onstop = () => resolve();
       recorder.stop();

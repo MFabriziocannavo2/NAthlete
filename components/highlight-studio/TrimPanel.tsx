@@ -5,14 +5,18 @@ import { ScissorsIcon, XMarkIcon } from "@heroicons/react/24/outline";
 import { formatDuration } from "@/lib/videoUtils";
 import type { Clip } from "./types";
 
+const SPEED_OPTIONS = [0.25, 0.5, 0.75, 1, 1.5, 2] as const;
+type SpeedValue = typeof SPEED_OPTIONS[number];
+
 interface Props {
   clip: Clip;
   onTrimChange: (id: string, trimStart: number, trimEnd: number) => void;
+  onSpeedChange: (id: string, speed: number) => void;
   onSplitApply: (id: string, splitAt: number) => void;
   onClose: () => void;
 }
 
-export default function TrimPanel({ clip, onTrimChange, onSplitApply, onClose }: Props) {
+export default function TrimPanel({ clip, onTrimChange, onSpeedChange, onSplitApply, onClose }: Props) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [splitMode, setSplitMode] = useState(false);
   const [splitAt, setSplitAt] = useState(
@@ -116,6 +120,27 @@ export default function TrimPanel({ clip, onTrimChange, onSplitApply, onClose }:
             <span className="text-gray-400">
               Trimmed: <span className="text-orange-400 font-mono">{formatDuration(trimDuration)}</span>
             </span>
+          </div>
+
+          {/* Speed */}
+          <div className="flex flex-col gap-1.5">
+            <p className="text-xs text-gray-400">Playback Speed</p>
+            <div className="flex gap-1.5 flex-wrap">
+              {SPEED_OPTIONS.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => onSpeedChange(clip.id, s)}
+                  className={`px-3 py-1 rounded-lg text-xs font-mono font-semibold transition ${
+                    (clip.speed ?? 1) === s
+                      ? "bg-orange-500 text-white"
+                      : "bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white"
+                  }`}
+                >
+                  {s === 1 ? "1× Normal" : `${s}×`}
+                </button>
+              ))}
+            </div>
           </div>
 
           {/* Split button */}

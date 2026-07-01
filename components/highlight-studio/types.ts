@@ -7,24 +7,20 @@ export interface Clip {
   trimStart: number;  // seconds
   trimEnd: number;    // seconds
   thumbnail?: string; // base64 data URL
-
-  // Future extension points (not yet implemented):
-  // speed?: number;
-  // textOverlays?: TextOverlay[];
-  // colorGrade?: ColorGrade;
-  // slowMotionSegments?: TimeRange[];
+  speed: number;      // playback rate: 0.25 | 0.5 | 0.75 | 1 | 1.5 | 2
 }
+
+export type OutputResolution = "480p" | "720p" | "1080p";
 
 export interface EditorSettings {
   title: string;
   muteAudio: boolean;
   fadeIn: boolean;
   fadeOut: boolean;
-  // Future:
-  // backgroundMusicUrl?: string;
-  // backgroundMusicVolume?: number;
-  // outputResolution?: '480p' | '720p' | '1080p';
-  // coachComments?: CoachComment[];
+  backgroundMusicFile?: File;   // local audio file chosen by user
+  backgroundMusicUrl?: string;  // object URL derived from backgroundMusicFile
+  backgroundMusicVolume: number; // 0–1
+  outputResolution: OutputResolution;
 }
 
 export type ExportStatus = 'idle' | 'processing' | 'done' | 'error';

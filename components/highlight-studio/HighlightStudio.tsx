@@ -23,6 +23,8 @@ const DEFAULT_SETTINGS: EditorSettings = {
   muteAudio: false,
   fadeIn: false,
   fadeOut: false,
+  backgroundMusicVolume: 0.3,
+  outputResolution: "720p",
 };
 
 export default function HighlightStudio() {
@@ -73,6 +75,7 @@ export default function HighlightStudio() {
           trimStart: 0,
           trimEnd: duration,
           thumbnail,
+          speed: 1,
         });
       } catch {
         URL.revokeObjectURL(src);
@@ -107,6 +110,10 @@ export default function HighlightStudio() {
     );
   };
 
+  const handleSpeedChange = (id: string, speed: number) => {
+    setClips((prev) => prev.map((c) => (c.id === id ? { ...c, speed } : c)));
+  };
+
   const handleSplit = (id: string, splitAt: number) => {
     setClips((prev) => {
       const idx = prev.findIndex((c) => c.id === id);
@@ -117,13 +124,15 @@ export default function HighlightStudio() {
         id: nextClipId(),
         name: `${original.name} (1)`,
         trimEnd: splitAt,
+        speed: original.speed,
       };
       const b: Clip = {
         ...original,
         id: nextClipId(),
         name: `${original.name} (2)`,
         trimStart: splitAt,
-        src: URL.createObjectURL(original.file), // separate object URL
+        speed: original.speed,
+        src: URL.createObjectURL(original.file),
       };
       const next = [...prev];
       next.splice(idx, 1, a, b);
@@ -172,6 +181,7 @@ export default function HighlightStudio() {
             <TrimPanel
               clip={selectedClip}
               onTrimChange={handleTrimChange}
+              onSpeedChange={handleSpeedChange}
               onSplitApply={handleSplit}
               onClose={() => setSelectedId(null)}
             />

@@ -5,6 +5,7 @@ import {
   ArrowDownTrayIcon,
   CheckCircleIcon,
   ExclamationTriangleIcon,
+  MusicalNoteIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { supabase } from "@/lib/supabase";
@@ -120,6 +121,7 @@ export default function ExportModal({ clips, settings, onSettingsChange, onClose
         {/* Settings */}
         {state.status === "idle" && support.supported && (
           <>
+            {/* Title */}
             <div className="flex flex-col gap-1.5">
               <label className="text-xs text-gray-400">Video Title</label>
               <input
@@ -131,10 +133,92 @@ export default function ExportModal({ clips, settings, onSettingsChange, onClose
               />
             </div>
 
+            {/* Resolution */}
+            <div className="flex flex-col gap-1.5">
+              <p className="text-xs text-gray-400 font-medium">Output Resolution</p>
+              <div className="flex gap-2">
+                {(["480p", "720p", "1080p"] as const).map((r) => (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() => onSettingsChange({ outputResolution: r })}
+                    className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition ${
+                      settings.outputResolution === r
+                        ? "bg-orange-500 text-white"
+                        : "bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white"
+                    }`}
+                  >
+                    {r}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Background music */}
+            <div className="flex flex-col gap-2">
+              <p className="text-xs text-gray-400 font-medium">Background Music</p>
+              {settings.backgroundMusicFile ? (
+                <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white/5 border border-white/10">
+                  <MusicalNoteIcon className="w-4 h-4 text-orange-400 shrink-0" />
+                  <span className="text-xs text-white truncate flex-1">
+                    {settings.backgroundMusicFile.name}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (settings.backgroundMusicUrl) URL.revokeObjectURL(settings.backgroundMusicUrl);
+                      onSettingsChange({ backgroundMusicFile: undefined, backgroundMusicUrl: undefined });
+                    }}
+                    className="text-gray-500 hover:text-red-400 transition"
+                    aria-label="Remove music"
+                  >
+                    <XMarkIcon className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <label className="flex items-center gap-2 p-2.5 rounded-xl bg-white/5 border border-dashed border-white/20 hover:border-orange-400 hover:bg-white/10 transition cursor-pointer">
+                  <MusicalNoteIcon className="w-4 h-4 text-gray-500" />
+                  <span className="text-xs text-gray-400">Add audio file (MP3, AAC, WAV…)</span>
+                  <input
+                    type="file"
+                    accept="audio/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (!f) return;
+                      if (settings.backgroundMusicUrl) URL.revokeObjectURL(settings.backgroundMusicUrl);
+                      const url = URL.createObjectURL(f);
+                      onSettingsChange({ backgroundMusicFile: f, backgroundMusicUrl: url });
+                      e.target.value = "";
+                    }}
+                  />
+                </label>
+              )}
+
+              {settings.backgroundMusicFile && (
+                <div className="flex flex-col gap-1">
+                  <div className="flex justify-between text-xs text-gray-400">
+                    <span>Volume</span>
+                    <span className="font-mono">{Math.round((settings.backgroundMusicVolume) * 100)}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min={0}
+                    max={1}
+                    step={0.05}
+                    value={settings.backgroundMusicVolume}
+                    className="w-full accent-orange-500"
+                    onChange={(e) => onSettingsChange({ backgroundMusicVolume: Number(e.target.value) })}
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Checkboxes */}
             <div className="flex flex-col gap-3">
               <p className="text-xs text-gray-400 font-medium">Options</p>
               {[
-                { key: "muteAudio", label: "Mute original audio" },
+                { key: "muteAudio", label: "Mute original clip audio" },
                 { key: "fadeIn", label: "Fade in (first clip)" },
                 { key: "fadeOut", label: "Fade out (last clip)" },
               ].map(({ key, label }) => (
@@ -150,9 +234,10 @@ export default function ExportModal({ clips, settings, onSettingsChange, onClose
               ))}
             </div>
 
+            {/* Summary */}
             <div className="text-xs text-gray-500 bg-white/5 rounded-xl p-3">
-              Output: 1280×720 WebM · {clips.length} clip{clips.length !== 1 ? "s" : ""} ·{" "}
-              {clips.reduce((s, c) => s + (c.trimEnd - c.trimStart), 0).toFixed(1)}s total
+              Output: {settings.outputResolution} WebM · {clips.length} clip{clips.length !== 1 ? "s" : ""} ·{" "}
+              {clips.reduce((s, c) => s + (c.trimEnd - c.trimStart) / (c.speed ?? 1), 0).toFixed(1)}s total
             </div>
 
             <button
