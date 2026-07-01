@@ -1,18 +1,12 @@
 "use client";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/AuthContext";
 import Logo from "@/components/ui/Logo";
-
-const navLinks = [
-  { label: "Home", href: "/" },
-  { label: "Discover", href: "/athletes" },
-];
 
 export default function Navbar() {
   const { user, loading, signOut } = useAuth();
   const router = useRouter();
-  const pathname = usePathname();
 
   const handleSignOut = async () => {
     await signOut();
@@ -28,40 +22,15 @@ export default function Navbar() {
           <Logo size="md" />
         </Link>
 
-        {/* Nav links */}
-        <div className="flex flex-1 items-center justify-center gap-3 md:gap-8">
-          {navLinks.map((link) => (
-            <Link
-              key={link.label}
-              href={link.href}
-              className={`text-sm md:text-base font-medium transition-colors ${
-                pathname === link.href
-                  ? "text-orange-400"
-                  : "text-gray-300 hover:text-white"
-              }`}
-            >
-              {link.label}
-            </Link>
-          ))}
-        </div>
-
         {/* Auth buttons */}
-        <div className="flex items-center gap-1 md:gap-2 shrink-0">
+        <div className="flex items-center gap-1 md:gap-2">
           {!loading && user ? (
-            <>
-              <Link
-                href="/my-profile"
-                className="px-2 md:px-4 py-1.5 rounded-md text-xs md:text-sm font-medium text-gray-300 hover:bg-white/10 transition"
-              >
-                My Profile
-              </Link>
-              <button
-                onClick={handleSignOut}
-                className="px-2 md:px-4 py-1.5 rounded-md text-xs md:text-sm font-bold bg-gradient-to-r from-orange-600 to-amber-500 text-white shadow hover:from-orange-500 hover:to-amber-400 transition"
-              >
-                Sign Out
-              </button>
-            </>
+            <button
+              onClick={handleSignOut}
+              className="px-3 md:px-4 py-1.5 rounded-md text-xs md:text-sm font-bold bg-gradient-to-r from-orange-600 to-amber-500 text-white shadow hover:from-orange-500 hover:to-amber-400 transition"
+            >
+              Sign Out
+            </button>
           ) : (
             <>
               <Link

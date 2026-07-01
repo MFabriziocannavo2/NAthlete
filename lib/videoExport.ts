@@ -1,5 +1,7 @@
 import type { Clip, EditorSettings, ExportSupport, OutputResolution, TextOverlay } from "@/components/highlight-studio/types";
 
+const TRANSITION_SECS = 0.25; // crossfade duration between clips
+
 /** Returns whether the browser can export video via canvas + MediaRecorder. */
 export function checkExportSupport(): ExportSupport {
   if (typeof window === "undefined") {
@@ -34,7 +36,6 @@ function drawLetterboxed(
 ) {
   ctx.fillStyle = "#000";
   ctx.fillRect(0, 0, canvasW, canvasH);
-
   if (!video.videoWidth || !video.videoHeight) return;
   const scale = Math.min(canvasW / video.videoWidth, canvasH / video.videoHeight);
   const w = video.videoWidth * scale;
@@ -42,7 +43,7 @@ function drawLetterboxed(
   ctx.drawImage(video, (canvasW - w) / 2, (canvasH - h) / 2, w, h);
 }
 
-/** Overlay a fade (black rect with alpha) on the canvas. */
+/** Overlay a black rect with given alpha (0 = transparent, 1 = fully black). */
 function applyFadeOverlay(
   ctx: CanvasRenderingContext2D,
   alpha: number,
@@ -80,6 +81,27 @@ function drawTextOverlays(
   }
 }
 
+/**
+ * Draw solid black frames for `durationMs` milliseconds.
+ * Keeps the rAF loop alive during the loading gap between clips.
+ */
+function holdBlackFrames(
+  canvas: HTMLCanvasElement,
+  ctx: CanvasRenderingContext2D,
+  durationMs: number
+): Promise<void> {
+  return new Promise((resolve) => {
+    const end = performance.now() + durationMs;
+    const draw = () => {
+      ctx.fillStyle = "#000";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      if (performance.now() < end) requestAnimationFrame(draw);
+      else resolve();
+    };
+    requestAnimationFrame(draw);
+  });
+}
+
 /** Render one clip to the canvas while the recorder is running. */
 async function renderClip(
   clip: Clip,
@@ -95,79 +117,109 @@ async function renderClip(
   return new Promise((resolve, reject) => {
     const video = document.createElement("video");
     video.src = clip.src;
-    video.muted = true; // prevent speaker feedback; audio goes via AudioContext
+    video.muted = true;
     video.preload = "auto";
 
     let audioSource: MediaElementAudioSourceNode | null = null;
-
     if (!settings.muteAudio) {
       try {
         audioSource = audioCtx.createMediaElementSource(video);
         audioSource.connect(audioDest);
       } catch {
-        // Audio capture unavailable for this element — skip audio
+        // audio capture unavailable — skip
       }
     }
 
     let rafId: number;
+    let playStarted = false;
     const clipDuration = clip.trimEnd - clip.trimStart;
+    const targetStart = Math.max(0, clip.trimStart);
+
+    // Defensive defaults
+    const { brightness = 1, contrast = 1, saturation = 1, hueRotate = 0 } = clip.colorGrade ?? {};
+    const overlays = clip.textOverlays ?? [];
+    const isGraded = brightness !== 1 || contrast !== 1 || saturation !== 1 || hueRotate !== 0;
+    const gradeFilter = `brightness(${brightness}) contrast(${contrast}) saturate(${saturation}) hue-rotate(${hueRotate}deg)`;
 
     const cleanup = () => {
       cancelAnimationFrame(rafId);
       video.pause();
       try { audioSource?.disconnect(); } catch { /* ignore */ }
-      video.src = "";
+      // Delay src clear so the last frame stays on canvas for a moment
+      setTimeout(() => { video.src = ""; }, 50);
     };
-
-    const { brightness, contrast, saturation, hueRotate } = clip.colorGrade;
-    const isGraded = brightness !== 1 || contrast !== 1 || saturation !== 1 || hueRotate !== 0;
-    const gradeFilter = `brightness(${brightness}) contrast(${contrast}) saturate(${saturation}) hue-rotate(${hueRotate}deg)`;
 
     const drawFrame = () => {
       const elapsed = video.currentTime - clip.trimStart;
 
       if (video.currentTime >= clip.trimEnd - 0.05 || video.ended) {
+        // Draw final frame
         if (isGraded) ctx.filter = gradeFilter;
         drawLetterboxed(ctx, video, canvas.width, canvas.height);
         ctx.filter = "none";
-        drawTextOverlays(ctx, clip.textOverlays, canvas.width, canvas.height);
+        drawTextOverlays(ctx, overlays, canvas.width, canvas.height);
         cleanup();
         onProgress(((clipIndex + 1) / totalClips) * 100);
         resolve();
         return;
       }
 
+      // Draw frame with color grade
       if (isGraded) ctx.filter = gradeFilter;
       drawLetterboxed(ctx, video, canvas.width, canvas.height);
       ctx.filter = "none";
 
-      // Fade in — first clip
-      if (settings.fadeIn && clipIndex === 0 && elapsed < 1) {
+      // — Fade in —
+      if (clipIndex === 0 && settings.fadeIn && elapsed < 1) {
+        // User-controlled fade for the very first clip
         applyFadeOverlay(ctx, 1 - elapsed, canvas.width, canvas.height);
+      } else if (clipIndex > 0 && elapsed < TRANSITION_SECS) {
+        // Auto crossfade from black at the start of every non-first clip
+        applyFadeOverlay(ctx, 1 - elapsed / TRANSITION_SECS, canvas.width, canvas.height);
       }
-      // Fade out — last clip
-      if (settings.fadeOut && clipIndex === totalClips - 1 && elapsed > clipDuration - 1) {
+
+      // — Fade out —
+      if (clipIndex === totalClips - 1 && settings.fadeOut && elapsed > clipDuration - 1) {
+        // User-controlled fade for the very last clip
         applyFadeOverlay(ctx, elapsed - (clipDuration - 1), canvas.width, canvas.height);
+      } else if (clipIndex < totalClips - 1 && elapsed > clipDuration - TRANSITION_SECS) {
+        // Auto crossfade to black at the end of every non-last clip
+        applyFadeOverlay(
+          ctx,
+          (elapsed - (clipDuration - TRANSITION_SECS)) / TRANSITION_SECS,
+          canvas.width,
+          canvas.height
+        );
       }
 
-      drawTextOverlays(ctx, clip.textOverlays, canvas.width, canvas.height);
-
+      drawTextOverlays(ctx, overlays, canvas.width, canvas.height);
       onProgress(((clipIndex + elapsed / clipDuration) / totalClips) * 100);
       rafId = requestAnimationFrame(drawFrame);
     };
 
-    video.onloadedmetadata = () => {
-      video.playbackRate = clip.speed ?? 1;
-      video.currentTime = Math.max(0, clip.trimStart);
-    };
-
-    video.onseeked = () => {
+    // Guard: start playback exactly once regardless of which event fires first
+    const startPlayback = () => {
+      if (playStarted) return;
+      playStarted = true;
       video.playbackRate = clip.speed ?? 1;
       video
         .play()
         .then(() => { rafId = requestAnimationFrame(drawFrame); })
         .catch((e) => { cleanup(); reject(e); });
     };
+
+    video.onloadedmetadata = () => {
+      video.playbackRate = clip.speed ?? 1;
+      video.currentTime = targetStart;
+      // If trimStart=0, currentTime is already 0 and onseeked may not fire.
+      // oncanplay serves as the fallback trigger.
+    };
+
+    // onseeked fires after a successful seek (trimStart > 0 case)
+    video.onseeked = startPlayback;
+
+    // oncanplay fires once enough data is ready — fallback for trimStart=0
+    video.oncanplay = startPlayback;
 
     video.onerror = () => {
       cleanup();
@@ -205,8 +257,12 @@ export async function exportClips(
   ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
   // Audio routing
-  const AudioCtx = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-  const audioCtx = new AudioCtx();
+  const AudioCtxClass =
+    window.AudioContext ??
+    (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+  const audioCtx = new AudioCtxClass();
+  // Resume in case browser starts the context suspended
+  await audioCtx.resume();
   const audioDest = audioCtx.createMediaStreamDestination();
 
   // Recorder
@@ -221,14 +277,13 @@ export async function exportClips(
   // Background music
   let bgAudio: HTMLAudioElement | null = null;
   let bgSource: MediaElementAudioSourceNode | null = null;
-  let bgGain: GainNode | null = null;
   if (!settings.muteAudio && settings.backgroundMusicUrl) {
     try {
       bgAudio = new Audio(settings.backgroundMusicUrl);
       bgAudio.loop = true;
       bgAudio.muted = true;
       bgSource = audioCtx.createMediaElementSource(bgAudio);
-      bgGain = audioCtx.createGain();
+      const bgGain = audioCtx.createGain();
       bgGain.gain.value = settings.backgroundMusicVolume ?? 0.3;
       bgSource.connect(bgGain);
       bgGain.connect(audioDest);
@@ -262,12 +317,17 @@ export async function exportClips(
         clips.length,
         onProgress
       );
+      // Hold black frames between clips to cover the loading gap.
+      // The clip already fades to black at the end, so this bridges cleanly.
+      if (i < clips.length - 1) {
+        await holdBlackFrames(canvas, ctx, 120);
+      }
     }
   } finally {
     bgAudio?.pause();
     bgSource?.disconnect();
-    await new Promise<void>((resolve) => {
-      recorder.onstop = () => resolve();
+    await new Promise<void>((res) => {
+      recorder.onstop = () => res();
       recorder.stop();
     });
     canvasStream.getTracks().forEach((t) => t.stop());
