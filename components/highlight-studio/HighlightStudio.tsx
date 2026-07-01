@@ -13,7 +13,8 @@ import ClipTimeline from "./ClipTimeline";
 import TrimPanel from "./TrimPanel";
 import PreviewPlayer from "./PreviewPlayer";
 import ExportModal from "./ExportModal";
-import type { Clip, EditorSettings } from "./types";
+import type { Clip, ColorGrade, EditorSettings, TextOverlay } from "./types";
+import { DEFAULT_COLOR_GRADE } from "./types";
 
 let _clipIdCounter = 0;
 function nextClipId() { return `clip-${++_clipIdCounter}`; }
@@ -76,6 +77,8 @@ export default function HighlightStudio() {
           trimEnd: duration,
           thumbnail,
           speed: 1,
+          textOverlays: [],
+          colorGrade: { ...DEFAULT_COLOR_GRADE },
         });
       } catch {
         URL.revokeObjectURL(src);
@@ -114,6 +117,26 @@ export default function HighlightStudio() {
     setClips((prev) => prev.map((c) => (c.id === id ? { ...c, speed } : c)));
   };
 
+  const handleColorGradeChange = (id: string, colorGrade: ColorGrade) => {
+    setClips((prev) => prev.map((c) => (c.id === id ? { ...c, colorGrade } : c)));
+  };
+
+  const handleAddOverlay = (id: string, overlay: TextOverlay) => {
+    setClips((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, textOverlays: [...c.textOverlays, overlay] } : c))
+    );
+  };
+
+  const handleDeleteOverlay = (id: string, overlayId: string) => {
+    setClips((prev) =>
+      prev.map((c) =>
+        c.id === id
+          ? { ...c, textOverlays: c.textOverlays.filter((o) => o.id !== overlayId) }
+          : c
+      )
+    );
+  };
+
   const handleSplit = (id: string, splitAt: number) => {
     setClips((prev) => {
       const idx = prev.findIndex((c) => c.id === id);
@@ -125,6 +148,8 @@ export default function HighlightStudio() {
         name: `${original.name} (1)`,
         trimEnd: splitAt,
         speed: original.speed,
+        textOverlays: [...original.textOverlays],
+        colorGrade: { ...original.colorGrade },
       };
       const b: Clip = {
         ...original,
@@ -132,6 +157,8 @@ export default function HighlightStudio() {
         name: `${original.name} (2)`,
         trimStart: splitAt,
         speed: original.speed,
+        textOverlays: [...original.textOverlays],
+        colorGrade: { ...original.colorGrade },
         src: URL.createObjectURL(original.file),
       };
       const next = [...prev];
@@ -182,6 +209,9 @@ export default function HighlightStudio() {
               clip={selectedClip}
               onTrimChange={handleTrimChange}
               onSpeedChange={handleSpeedChange}
+              onColorGradeChange={handleColorGradeChange}
+              onAddOverlay={handleAddOverlay}
+              onDeleteOverlay={handleDeleteOverlay}
               onSplitApply={handleSplit}
               onClose={() => setSelectedId(null)}
             />

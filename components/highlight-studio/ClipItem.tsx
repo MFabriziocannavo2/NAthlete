@@ -73,7 +73,7 @@ export default function ClipItem({
       {/* Info */}
       <div className="flex-1 min-w-0">
         <p className="text-sm font-medium text-white truncate">{clip.name}</p>
-        <div className="flex items-center gap-2 mt-0.5">
+        <div className="flex items-center gap-2 mt-0.5 flex-wrap">
           <span className="text-xs text-orange-400 font-mono">
             {formatDuration(trimmedDuration)}
           </span>
@@ -82,6 +82,13 @@ export default function ClipItem({
           )}
           {clip.speed !== 1 && (
             <span className="text-xs text-amber-400 font-mono">{clip.speed}×</span>
+          )}
+          {(clip.colorGrade.brightness !== 1 || clip.colorGrade.contrast !== 1 ||
+            clip.colorGrade.saturation !== 1 || clip.colorGrade.hueRotate !== 0) && (
+            <span className="text-xs text-purple-400">color</span>
+          )}
+          {clip.textOverlays.length > 0 && (
+            <span className="text-xs text-sky-400">T×{clip.textOverlays.length}</span>
           )}
         </div>
       </div>

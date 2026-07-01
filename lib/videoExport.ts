@@ -1,4 +1,4 @@
-import type { Clip, EditorSettings, ExportSupport, OutputResolution } from "@/components/highlight-studio/types";
+import type { Clip, EditorSettings, ExportSupport, OutputResolution, TextOverlay } from "@/components/highlight-studio/types";
 
 /** Returns whether the browser can export video via canvas + MediaRecorder. */
 export function checkExportSupport(): ExportSupport {
@@ -57,6 +57,29 @@ function applyFadeOverlay(
   ctx.restore();
 }
 
+/** Burn text overlays onto the canvas at their normalized positions. */
+function drawTextOverlays(
+  ctx: CanvasRenderingContext2D,
+  overlays: TextOverlay[],
+  canvasW: number,
+  canvasH: number
+) {
+  for (const ov of overlays) {
+    ctx.save();
+    const scale = canvasW / 1280;
+    ctx.font = `bold ${Math.round(ov.fontSize * scale)}px system-ui, Arial, sans-serif`;
+    ctx.fillStyle = ov.color;
+    ctx.textAlign = ov.align;
+    ctx.textBaseline = "middle";
+    ctx.shadowColor = "rgba(0,0,0,0.85)";
+    ctx.shadowBlur = 6;
+    ctx.shadowOffsetX = 1;
+    ctx.shadowOffsetY = 1;
+    ctx.fillText(ov.text, ov.x * canvasW, ov.y * canvasH);
+    ctx.restore();
+  }
+}
+
 /** Render one clip to the canvas while the recorder is running. */
 async function renderClip(
   clip: Clip,
@@ -96,18 +119,27 @@ async function renderClip(
       video.src = "";
     };
 
+    const { brightness, contrast, saturation, hueRotate } = clip.colorGrade;
+    const isGraded = brightness !== 1 || contrast !== 1 || saturation !== 1 || hueRotate !== 0;
+    const gradeFilter = `brightness(${brightness}) contrast(${contrast}) saturate(${saturation}) hue-rotate(${hueRotate}deg)`;
+
     const drawFrame = () => {
       const elapsed = video.currentTime - clip.trimStart;
 
       if (video.currentTime >= clip.trimEnd - 0.05 || video.ended) {
+        if (isGraded) ctx.filter = gradeFilter;
         drawLetterboxed(ctx, video, canvas.width, canvas.height);
+        ctx.filter = "none";
+        drawTextOverlays(ctx, clip.textOverlays, canvas.width, canvas.height);
         cleanup();
         onProgress(((clipIndex + 1) / totalClips) * 100);
         resolve();
         return;
       }
 
+      if (isGraded) ctx.filter = gradeFilter;
       drawLetterboxed(ctx, video, canvas.width, canvas.height);
+      ctx.filter = "none";
 
       // Fade in — first clip
       if (settings.fadeIn && clipIndex === 0 && elapsed < 1) {
@@ -117,6 +149,8 @@ async function renderClip(
       if (settings.fadeOut && clipIndex === totalClips - 1 && elapsed > clipDuration - 1) {
         applyFadeOverlay(ctx, elapsed - (clipDuration - 1), canvas.width, canvas.height);
       }
+
+      drawTextOverlays(ctx, clip.textOverlays, canvas.width, canvas.height);
 
       onProgress(((clipIndex + elapsed / clipDuration) / totalClips) * 100);
       rafId = requestAnimationFrame(drawFrame);
