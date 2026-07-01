@@ -22,7 +22,7 @@ export const DEFAULT_COLOR_GRADE: ColorGrade = {
   hueRotate: 0,
 };
 
-export type OutputResolution = "480p" | "720p" | "1080p";
+export type OutputResolution = "480p" | "720p" | "1080p" | "original";
 
 export interface Clip {
   id: string;

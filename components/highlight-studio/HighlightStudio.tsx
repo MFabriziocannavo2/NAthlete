@@ -25,7 +25,7 @@ const DEFAULT_SETTINGS: EditorSettings = {
   fadeIn: false,
   fadeOut: false,
   backgroundMusicVolume: 0.3,
-  outputResolution: "720p",
+  outputResolution: "1080p",
 };
 
 export default function HighlightStudio() {
